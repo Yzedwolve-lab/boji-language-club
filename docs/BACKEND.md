@@ -6,6 +6,8 @@
 
 `APP_MODE=demo` 是默认值。`POST /api/onboarding` 重复完整资料校验并返回 `{profile}` 或 `{errors}`，不创建账户。其他 `/api/v1/*` 接口返回明确的 production unavailable。浏览器演示状态不构成真实 XP 钱包或账号权限。
 
+2026-10-18 起，个人版入会资料与 AI 计划统一使用 `Asia/Shanghai`（北京时间），训练日仍以北京时间 03:00 为界。服务端忽略旧客户端提交的时区字段，先规范化再校验；AI 计划的 `forDate` 也由程序按该固定边界计算，不依赖浏览器或宿主机时区。页面不再提供时区选择。
+
 `APP_MODE=production` 要求 `SUPABASE_URL`、`SUPABASE_ANON_KEY`、`SUPABASE_SERVICE_ROLE_KEY`；缺一则拒绝提供生产服务。服务端文件导入 `server-only`。秘密不得使用 `NEXT_PUBLIC_*`。前端生产登录、会话恢复和完整 API 接线仍是上线门槛，页面在该模式下显示服务尚未开放。
 
 每次请求要求 `Authorization: Bearer <access_token>`，调用 Supabase Auth `/auth/v1/user` 验证会话；不信任客户端解码的 JWT、owner ID、分数或时间。用户读取使用原用户 JWT，并加 `user_id` 条件；数据库 RLS 再限制所有者。答案与 provider secrets 不进入公开课程响应。特权写入由服务端绑定已验证 UID，浏览器不能直接写评估或钱包。
@@ -16,7 +18,7 @@
 
 | Method / path | 已实现行为 | 当前限制 |
 |---|---|---|
-| POST `/onboarding` | 重复 Profile 校验、成人门槛、幂等创建 profile/自报成绩/目标/同意记录 | 不含注册或登录 UI；时区创建后锁定 |
+| POST `/onboarding` | 重复 Profile 校验、成人门槛、幂等创建 profile/自报成绩/目标/同意记录；新档案固定北京时间 | 不含注册或登录 UI；历史生产档案不由重复入会改写 |
 | GET `/me/dashboard`、`/activity/current` | 服务端跨日，返回本人公开题干、原稿、评估 | 固定原创 seed；未实现动态课程生成 |
 | POST `/activity/:id/claim`，body `{}` | 用户 JWT 调用事务结算；不接受 xp/passed/owner/time | 必须先真实完成全部项目；当前音频门槛阻止完整生产领取 |
 | GET `/history` | 最近 100 个训练期/结算/账本，显式给出导出入口 | 尚无 UI 分页 |
@@ -38,7 +40,9 @@
 
 `supabase/migrations/202610150001_club.sql` 定义规格中的核心实体、逐用户 RLS、无客户端 DML 授权、私有答案表、私有 audio bucket 和以下 RPC：
 
-- `current_activity()` 用真实数据库时间、已锁定 profile 时区和本地 03:00 边界。未领归档并保持 Day；已领须等合法下一日期；漏多日只创建本次期，不补造完成。
+增量迁移 `202610180001_beijing_time.sql` 将新 profiles 的默认值、INSERT 与入会 RPC 统一为 `Asia/Shanghai`，包括忽略旧客户端提交的其他时区。请按文件名顺序应用全部迁移；旧迁移没有改写。本次仅在可销毁 PGlite 测试库执行，未操作远程数据库。已有多用户数据库中的 profiles、activity_periods、checkins 与 XP 账本保持原样；旧账号重复入会也保留原锁定时区，不自动重算历史。未来若要将这类已部署旧账号迁至北京时间，需要单独设计生效边界；这不影响当前个人版固定北京时间的行为。
+
+- `current_activity()` 用真实数据库时间及已锁定 profile 时区的 03:00 边界，新账号固定北京时间。未领归档并保持 Day；已领须等合法下一日期；漏多日只创建本次期，不补造完成。
 - `claim_activity(period)` 先锁 profile、再锁 period；读取每次 attempt 最新不可变 evaluation，为每个项目保留最佳通过尝试。五项最低 60、平均至少 70，fitness 有有效通过证据后才计算最多 100 XP。同事务创建唯一 check-in/ledger、更新累计数与已领状态。重试返回原结算，不重算快照。
 - `record_attempt` / `finish_assessment` 只授予 service_role；原稿与 evaluation 都只能追加。评分 version 单调递增。所有用户表的 INSERT 还锁 profile 并检查 deleting，避免删除竞争中重建数据。
 - 对所有六类材料已在服务端截止前提交的期，provider 延迟会保留同一期。无论用户是否已经刷新，截止后最后一次审核完成都会创建固定 24 小时窗口。此竞态已在实际内存 PostgreSQL 中回归；真实服务多会话验证仍待执行。
@@ -56,7 +60,9 @@
 
 ## 实际验证与本地数据库测试
 
-已执行 `pnpm exec vitest run src/lib/server`，三个文件共 **45 项通过**；全项目 `pnpm exec tsc --noEmit` 与 `pnpm exec eslint src/lib/server src/app/api` 均通过。最新整体结果见项目测试报告。
+2026-10-18 固定北京时间更新后，已执行 `pnpm exec vitest run src/lib/server`，**13 个文件、398 项通过**。新增覆盖旧/缺失/无效客户端时区规范化、AI 计划的北京时间 02:59:59/03:00 边界、数据库会话时区独立性、新 profile/RPC 固定时区、以及增量迁移保留旧档案/已结算期/XP。均使用合成数据和 mock provider，没有发送真实 AI 请求。
+
+以下为初始服务端交付的 45 项验证范围；后续扩展后的完整结果以上述当前执行结果及项目测试报告为准：
 
 - 24 项 transport mock 测试：Auth 验证调用路径、A/B API 所有权拒绝、用户令牌读取、伪造 XP 拒绝、未解锁答案拒绝、缺音频不记错误、压缩上限、未知预测、上传 fail closed、删除中拒绝、删除失败恢复顺序、真实高摄入日志保存和 provider 输出校验。
 - 14 项 **实际 PostgreSQL 18.6 / PGlite 0.5.10** 测试：执行 migration 与 seed；验证真实 SQL 权限/RLS、A/B 隔离、钱包/答案/特权 RPC 拒绝、音频 owner 与过期策略、NULL 分数与无音频评分约束、03:00/Sydney DST、缺模块拒绝、不可变记录、结算与 requestKey 幂等、漏日归档/保持 Day、领取后合法跨日才加 Day、provider 截止后完成且用户未刷新、默认预算拒绝/只预留一次、删除防重建/级联。
@@ -80,6 +86,6 @@ $env:BOJI_TEST_DATABASE_URL='postgresql://postgres:LOCAL_TEST_PASSWORD@127.0.0.1
 3. 独立存储、音频签名读取、内容扫描/格式/时长验证、真实解码评分与 30 天清理 worker；原创听力音频授权。
 4. 真实营养数据库适配和审核策略；缺项继续 tracking_only，不伪造目标。
 5. 校准 provider 成本、全局费用止损、IP 限流、重复输入缓存及监控；实际 provider schema/质量测试。
-6. 预测基线/计划确认与历史目标更改、时区未来生效策略、稳定导出快照、法域/数据处理/备份保留审核。
+6. 预测基线/计划确认与历史目标更改、已有多用户档案迁入北京时间的未来生效策略（如需）、稳定导出快照、法域/数据处理/备份保留审核。
 
 官方技术依据（2026-10-15 读取）：[Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)、[Next.js Route Handlers](https://nextjs.org/docs/app/api-reference/file-conventions/route)、[OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs?api-mode=responses)、[PGlite 文档](https://pglite.dev/docs/)。PGlite 为仅测试的精确 devDependency，使用 [Apache-2.0 / PostgreSQL 双许可](https://github.com/electric-sql/pglite)，安装使用 `--ignore-scripts`。本仓库没有声称官方文档本身替代实际隔离与费用测试。

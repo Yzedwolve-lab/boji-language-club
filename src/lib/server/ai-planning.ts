@@ -1,6 +1,11 @@
 import "server-only";
 import { z } from "zod";
-import { TIME_TEMPLATES, clubDate, validateProfile } from "../domain";
+import {
+  CLUB_TIME_ZONE,
+  TIME_TEMPLATES,
+  clubDate,
+  validateProfile,
+} from "../domain";
 import { calculateEnergyReference } from "../energy-plan";
 import { planningInputKey } from "../plan-input";
 import { TASKS } from "../lessons";
@@ -158,7 +163,7 @@ export async function createAIStarterPlan(
   const nutritionAllowed = profile.age >= 18 && profile.healthConsent;
   const energy = calculateEnergyReference(profile, input.preferences);
   const now = options.now ?? new Date();
-  const forDate = clubDate(now, profile.timeZone);
+  const forDate = clubDate(now, CLUB_TIME_ZONE);
   const template = TIME_TEMPLATES[profile.timeBudget];
   const client =
     options.client ??

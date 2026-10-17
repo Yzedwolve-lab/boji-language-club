@@ -1,4 +1,4 @@
-import { calculateXP, clubDate, type Profile } from "./domain";
+import { CLUB_TIME_ZONE, calculateXP, clubDate, type Profile } from "./domain";
 import type {
   AIOnboardingResult,
   AINutritionResult,
@@ -12,6 +12,7 @@ import {
 } from "./fitness-review";
 import { validReflection } from "./fitness";
 import { energyInputKey } from "./energy-plan";
+import { planningInputKey } from "./plan-input";
 import {
   emptyLearningProgress,
   learningAverage,
@@ -60,6 +61,8 @@ export type DemoPeriod = {
   learning: LearningProgress;
   awardedXP: number;
   claimedAt?: string;
+  /** Fixed-zone settlement day; also keeps demo day offsets independent of wall time. */
+  claimedClubDate?: string;
   /** Latched for this training day once a numerical plan has been selected. */
   fitnessReviewRequired?: boolean;
 };
@@ -91,7 +94,7 @@ export function defaultProfile(): Profile {
     bodyFatPercent: null,
     activityLevel: "",
     timeBudget: 30,
-    timeZone: "Australia/Brisbane",
+    timeZone: CLUB_TIME_ZONE,
     examType: "none",
     examScore: null,
     examDate: "",
@@ -137,6 +140,7 @@ export function newDemo(profile: Profile, now = new Date()): DemoState {
     schema: 1,
     profile: {
       ...profile,
+      timeZone: CLUB_TIME_ZONE,
       nickname:
         profile.nickname.trim() ||
         `俱乐部新朋友${Math.floor(Math.random() * 900 + 100)}`,
@@ -145,7 +149,7 @@ export function newDemo(profile: Profile, now = new Date()): DemoState {
     joinedAt: now.toISOString(),
     xp: 0,
     completedDays: 0,
-    current: makePeriod(clubDate(now, profile.timeZone), 1),
+    current: makePeriod(clubDate(now, CLUB_TIME_ZONE), 1),
     history: [],
     ledger: [],
     dayOffset: 0,
@@ -237,8 +241,44 @@ export function isFitnessComplete(state: DemoState): boolean {
   );
 }
 
+/** Update only the timezone and a still-current plan's input checksum. Original
+ * period dates, evidence, plan history and already-awarded XP remain immutable. */
+function migrateClubTimeZone(state: DemoState): DemoState {
+  if (state.profile.timeZone === CLUB_TIME_ZONE) return state;
+  const migrated = {
+    ...state,
+    profile: { ...state.profile, timeZone: CLUB_TIME_ZONE },
+  };
+  const setup = state.aiSetup;
+  const plan = setup?.plan;
+  if (
+    setup &&
+    plan?.inputKey &&
+    plan.inputKey ===
+      planningInputKey({
+        profile: effectivePlanningProfile(state),
+        preferences: setup.preferences,
+        englishSample: setup.englishSample,
+      })
+  ) {
+    migrated.aiSetup = {
+      ...setup,
+      plan: {
+        ...plan,
+        inputKey: planningInputKey({
+          profile: effectivePlanningProfile(migrated),
+          preferences: setup.preferences,
+          englishSample: setup.englishSample,
+        }),
+      },
+    };
+  }
+  return migrated;
+}
+
 /** Preserve all claimed history; an outdated unclaimed flag cannot authorize XP. */
-export function normalizeDemoState(state: DemoState): DemoState {
+export function normalizeDemoState(input: DemoState): DemoState {
+  const state = migrateClubTimeZone(input);
   if (state.current.status !== "active") return state;
   const normalized =
     !state.current.fitnessReviewRequired && hasNumericalPlan(state)
@@ -263,8 +303,30 @@ export function normalizeDemoState(state: DemoState): DemoState {
     },
   };
 }
-export function claimDemo(state: DemoState): DemoState {
+/** Legacy settlements predate the fixed-zone field. Derive their Beijing day
+ * from the saved instant without rewriting the original period or ledger. */
+function settledClubDate(period: DemoPeriod): string {
+  if (period.claimedClubDate) return period.claimedClubDate;
+  if (period.claimedAt && Number.isFinite(Date.parse(period.claimedAt)))
+    return clubDate(new Date(period.claimedAt), CLUB_TIME_ZONE);
+  return period.date;
+}
+
+export function claimDemo(state: DemoState, now = new Date()): DemoState {
   if (state.ledger.some((x) => x.source === state.current.id)) return state;
+  const today = demoDate(state, now);
+  if (state.current.date > today)
+    throw new Error("北京时间尚未进入这个训练日，请在凌晨 03:00 后继续领取。");
+  if (
+    state.history.some(
+      (period) =>
+        period.status === "claimed" &&
+        [state.current.date, today].includes(settledClubDate(period)),
+    )
+  )
+    throw new Error(
+      "本北京时间训练日已领取过经验，请在次日凌晨 03:00 后继续。",
+    );
   const language = languageSummary(state.current.learning);
   if (
     !isFitnessComplete(state) ||
@@ -281,7 +343,8 @@ export function claimDemo(state: DemoState): DemoState {
       ...state.current,
       status: "claimed",
       awardedXP: xp,
-      claimedAt: new Date().toISOString(),
+      claimedAt: now.toISOString(),
+      claimedClubDate: state.current.date,
     },
     ledger: [
       ...state.ledger,
@@ -294,8 +357,14 @@ export function claimDemo(state: DemoState): DemoState {
     ],
   };
 }
-export function rollDemo(state: DemoState, date: string): DemoState {
+export function rollDemo(input: DemoState, date: string): DemoState {
+  const state = normalizeDemoState(input);
   if (date <= state.current.date) return state;
+  if (
+    state.current.status === "claimed" &&
+    date <= settledClubDate(state.current)
+  )
+    return state;
   const current = makePeriod(
     date,
     state.current.dayIndex + (state.current.status === "claimed" ? 1 : 0),
@@ -317,7 +386,7 @@ export function rollDemo(state: DemoState, date: string): DemoState {
 export function demoDate(state: DemoState, now = new Date()) {
   return clubDate(
     new Date(now.getTime() + state.dayOffset * 86400000),
-    state.profile.timeZone,
+    CLUB_TIME_ZONE,
   );
 }
 export function nextCalendarDate(date: string) {

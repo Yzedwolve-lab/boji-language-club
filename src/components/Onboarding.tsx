@@ -14,6 +14,7 @@ import {
   Activity,
 } from "lucide-react";
 import {
+  CLUB_TIME_ZONE,
   GOALS,
   TIME_TEMPLATES,
   validateProfile,
@@ -66,14 +67,7 @@ export default function Onboarding({
   useEffect(() => {
     try {
       const draft = localStorage.getItem("boji.onboarding.draft");
-      if (draft) setProfile(JSON.parse(draft));
-      else
-        setProfile((p) => ({
-          ...p,
-          timeZone:
-            Intl.DateTimeFormat().resolvedOptions().timeZone ||
-            "Australia/Brisbane",
-        }));
+      if (draft) setProfile({ ...JSON.parse(draft), timeZone: CLUB_TIME_ZONE });
       const aiDraft = localStorage.getItem("boji.onboarding.ai-draft");
       if (aiDraft) {
         const parsed = JSON.parse(aiDraft);
@@ -123,7 +117,7 @@ export default function Onboarding({
     }
   }, []);
   const update = (patch: Partial<Profile>) => {
-    const next = { ...profile, ...patch };
+    const next = { ...profile, ...patch, timeZone: CLUB_TIME_ZONE };
     setProfile(next);
     setErrors({});
     try {
@@ -238,7 +232,6 @@ export default function Onboarding({
             "weightKg",
             "heightCm",
             "bodyFatPercent",
-            "timeZone",
             "timeBudget",
           ]
         : step === 1
@@ -486,7 +479,7 @@ export default function Onboarding({
                       open={aiMode === "self_hosted" || undefined}
                     >
                       <summary>
-                        身体资料与时区{" "}
+                        身体资料{" "}
                         <span>
                           {aiMode === "self_hosted"
                             ? "生成饮食范围需身高、体重"
@@ -537,16 +530,6 @@ export default function Onboarding({
                             </select>
                           </label>
                         )}
-                        <label className="field full">
-                          训练时区
-                          <input
-                            value={profile.timeZone}
-                            onChange={(e) =>
-                              update({ timeZone: e.target.value })
-                            }
-                          />
-                          {fieldError("timeZone")}
-                        </label>
                       </div>
                       <p className="tiny muted">
                         身体资料可随时不提供。AI

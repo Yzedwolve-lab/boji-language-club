@@ -23,7 +23,7 @@ const input = (): AIPlanningInput => ({
     bodyFatPercent: null,
     activityLevel: "light",
     timeBudget: 30,
-    timeZone: "Australia/Brisbane",
+    timeZone: "Asia/Shanghai",
     examType: "none",
     examScore: null,
     examDate: "",
@@ -83,6 +83,26 @@ const transport = (value: unknown) =>
   });
 
 describe("AI starter plan boundaries", () => {
+  it.each([
+    ["2026-10-14T18:59:59Z", "2026-10-14"],
+    ["2026-10-14T19:00:00Z", "2026-10-15"],
+  ])(
+    "uses the Beijing 03:00 boundary at %s even for a legacy client zone",
+    async (now, expectedDate) => {
+      const raw = input();
+      raw.profile.timeZone = "America/Los_Angeles";
+      expect(parseAIPlanningInput(raw).profile.timeZone).toBe("Asia/Shanghai");
+      const fetcher = transport(output());
+      const plan = await createAIStarterPlan(raw, {
+        config,
+        fetcher,
+        now: new Date(now),
+      });
+      expect(plan.forDate).toBe(expectedDate);
+      const sent = JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body));
+      expect(JSON.parse(sent.messages[1].content).forDate).toBe(expectedDate);
+    },
+  );
   it("accepts legacy preferences without guessing eligibility or calculation sex", () => {
     const parsed = parseAIPlanningInput(input());
     expect(parsed.preferences).toMatchObject({
@@ -123,7 +143,7 @@ describe("AI starter plan boundaries", () => {
       now: new Date("2026-10-15T15:30:00Z"),
     });
     const energy = calculateEnergyReference(raw.profile, raw.preferences);
-    // At 01:30 local time the club's 04:00 boundary still belongs to yesterday.
+    // At 23:30 Beijing time this remains the October 15 training day.
     expect(plan.forDate).toBe("2026-10-15");
     expect(plan.inputKey).toBe(planningInputKey(raw));
     expect(plan.nutrition.energy).toEqual(energy);

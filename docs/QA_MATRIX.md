@@ -4,7 +4,13 @@ Date: 2026-10-15. This report distinguishes local deterministic/browser evidence
 
 Public-source note (2026-10-17): historical logs and screenshots under `artifacts/` remain local and are excluded from Git. Reproduce checks with the README commands; new CI results appear in GitHub Actions. The public-release check passed 567 unit/integration tests and 7 launcher tests, with ESLint passing. These checks used synthetic data and mocked AI.
 
-The [first public GitHub Actions run](https://github.com/zhouyilang666-lab/boji-language-club/actions/runs/39007440544) passed on Linux with a clean install, lint, unit/integration and launcher tests, production build, typecheck, browser/source pattern scan, and **45/45 browser tests (2.3 minutes)**. The tested application revision is `4f2f1f1`; the following release documentation and ignore-list update does not change application code.
+The [first public GitHub Actions run](https://github.com/Yzedwolve-lab/boji-language-club/actions/runs/39007440544) passed on Linux with a clean install, lint, unit/integration and launcher tests, production build, typecheck, browser/source pattern scan, and **45/45 browser tests (2.3 minutes)**. The tested application revision is `4f2f1f1`; the following release documentation and ignore-list update does not change application code.
+
+## v0.1.1 fixed Beijing time (2026-10-18)
+
+The full unit/integration suite passed **589/589 across 21 files**. ESLint, TypeScript and the optimized Next.js build passed. The final production-build Chromium run passed **14/14 in 1.1 minutes**, covering the core club suite and four new timezone regressions. Logs use the `artifacts/logs/china-timezone-` prefix and remain excluded from the public repository.
+
+The new browser tests run with `America/Los_Angeles`: onboarding has no timezone input, a legacy Brisbane draft retains user-entered details, a saved legacy profile keeps drafts/history/XP/ledger, and the training day rolls at Beijing 03:00 without awarding unclaimed XP. Deterministic tests additionally cover ahead/behind legacy periods, same-Beijing-day reward prevention, simulated day offsets and preservation of a still-current plan's freshness. Backend/PGlite tests apply both migrations and verify fixed-zone creation while retaining existing historical settlements. No remote database migration or real AI request was performed.
 
 ## V6.1 completion feedback and single-meal coverage (2026-10-17)
 

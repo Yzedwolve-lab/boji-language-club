@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  CLUB_TIME_ZONE,
   GOALS,
   TIME_TEMPLATES,
   calculateXP,
@@ -32,7 +33,7 @@ const profile: Profile = {
   bodyFatPercent: null,
   activityLevel: "",
   timeBudget: 30,
-  timeZone: "Australia/Brisbane",
+  timeZone: CLUB_TIME_ZONE,
   examType: "none",
   examScore: null,
   examDate: "",
@@ -110,11 +111,15 @@ describe("optional health fields and independent goal labels", () => {
       expect(validateProfile({ ...profile, [field]: 0 })[field]).toBeTruthy();
     },
   );
-  it("requires an integer age and a valid timezone", () => {
+  it("requires an integer age and the fixed China club timezone", () => {
     expect(validateProfile({ ...profile, age: 24.5 }).age).toBeTruthy();
     expect(
       validateProfile({ ...profile, timeZone: "not/a-zone" }).timeZone,
     ).toBeTruthy();
+    expect(
+      validateProfile({ ...profile, timeZone: "Australia/Brisbane" }).timeZone,
+    ).toBeTruthy();
+    expect(CLUB_TIME_ZONE).toBe("Asia/Shanghai");
   });
   it("keeps unusual positive measurements usable in tracking mode", () => {
     expect(
@@ -177,6 +182,8 @@ describe("fixed XP rules and non-compounding forecast preview", () => {
 
 describe("local 03:00 training boundaries with daylight savings", () => {
   it.each([
+    ["2026-10-14T18:59:59Z", "Asia/Shanghai", "2026-10-14"],
+    ["2026-10-14T19:00:00Z", "Asia/Shanghai", "2026-10-15"],
     ["2026-10-14T16:59:59Z", "Australia/Brisbane", "2026-10-14"],
     ["2026-10-14T17:00:00Z", "Australia/Brisbane", "2026-10-15"],
     ["2026-10-03T15:59:59Z", "Australia/Sydney", "2026-10-03"],

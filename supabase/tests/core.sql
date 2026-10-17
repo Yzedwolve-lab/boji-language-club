@@ -9,8 +9,9 @@ insert into auth.users(id,email) values
 insert into public.profiles(user_id,payload) values
  ('f1000000-0000-4000-8000-000000000001','{}'),
  ('f1000000-0000-4000-8000-000000000002','{}');
-select pg_temp.assert_true(public.club_date('Australia/Brisbane','2026-10-14 16:59:00Z')='2026-10-14','02:59 remains previous club date');
-select pg_temp.assert_true(public.club_date('Australia/Brisbane','2026-10-14 17:00:00Z')='2026-10-15','03:00 starts next club date');
+select pg_temp.assert_true((select bool_and(time_zone='Asia/Shanghai' and payload->>'timeZone'='Asia/Shanghai') from public.profiles where user_id in ('f1000000-0000-4000-8000-000000000001','f1000000-0000-4000-8000-000000000002')),'new profiles use Beijing time');
+select pg_temp.assert_true(public.club_date('Asia/Shanghai','2026-10-14 18:59:59Z')='2026-10-14','Beijing 02:59:59 remains previous club date');
+select pg_temp.assert_true(public.club_date('Asia/Shanghai','2026-10-14 19:00:00Z')='2026-10-15','Beijing 03:00 starts next club date');
 select pg_temp.assert_true(public.club_date('Australia/Sydney','2026-10-03 15:59:00Z')='2026-10-03','DST spring before boundary');
 select pg_temp.assert_true(public.club_date('Australia/Sydney','2026-10-03 16:00:00Z')='2026-10-04','DST spring after boundary');
 

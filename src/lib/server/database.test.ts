@@ -55,6 +55,7 @@ beforeAll(async () => {
       "-- pgcrypto bootstrap omitted in PGlite; core UUID/SHA256 verified below.",
     ),
   );
+  await db.exec(await sqlFile("migrations/202610180001_beijing_time.sql"));
   await db.exec(await sqlFile("seed.sql"));
 }, 30_000);
 
@@ -95,7 +96,7 @@ async function readyPeriod(ends = "future") {
   await user();
   await db.query(
     `insert into public.activity_periods(id,user_id,club_date,day_index,time_zone,starts_at,ends_at)
-    values($1,$2,public.club_date('Australia/Brisbane'),1,'Australia/Brisbane',now()-interval '3 hours',now()+$3::interval)`,
+    values($1,$2,public.club_date('Asia/Shanghai'),1,'Asia/Shanghai',now()-interval '3 hours',now()+$3::interval)`,
     [PERIOD, A, ends === "future" ? "1 hour" : "-1 hour"],
   );
   await db.query(
@@ -113,6 +114,83 @@ async function readyPeriod(ends = "future") {
 }
 
 describe("actual in-memory PostgreSQL migration and authorization", () => {
+  it("normalizes new profiles and onboarding RPCs to Beijing time", async () => {
+    await user(A);
+    expect(
+      (
+        await db.query(
+          "select time_zone,payload->>'timeZone' as payload_zone from profiles where user_id=$1",
+          [A],
+        )
+      ).rows[0],
+    ).toEqual({
+      time_zone: "Asia/Shanghai",
+      payload_zone: "Asia/Shanghai",
+    });
+    await db.query("insert into auth.users(id,email) values($1,$2)", [
+      B,
+      "fixture@example.invalid",
+    ]);
+    const payload = {
+      timeZone: "not-a-zone",
+      timeBudget: 30,
+      goal: "user",
+      examType: "none",
+      healthConsent: false,
+    };
+    const first = (
+      await db.query<{
+        result: { time_zone: string; payload: Record<string, unknown> };
+      }>("select initialize_profile($1,$2) result", [B, payload])
+    ).rows[0].result;
+    expect(first.time_zone).toBe("Asia/Shanghai");
+    expect(first.payload.timeZone).toBe("Asia/Shanghai");
+    const retry = (
+      await db.query<{ result: unknown }>(
+        "select initialize_profile($1,$2) result",
+        [B, { ...payload, timeZone: "Australia/Brisbane" }],
+      )
+    ).rows[0].result;
+    expect(retry).toEqual(first);
+    expect(
+      (await db.query("select * from goals where user_id=$1", [B])).rows,
+    ).toHaveLength(1);
+  });
+  it("preserves historical zones, settled periods and XP when applying the timezone migration", async () => {
+    await readyPeriod();
+    // Simulate an already deployed account before the Beijing-only default.
+    await db.query(
+      "update profiles set time_zone='Australia/Brisbane',payload=jsonb_set(payload,'{timeZone}','\"Australia/Brisbane\"') where user_id=$1",
+      [A],
+    );
+    await db.query(
+      "update activity_periods set time_zone='Australia/Brisbane',club_date=public.club_date('Australia/Brisbane') where id=$1",
+      [PERIOD],
+    );
+    await authenticated();
+    await db.query("select claim_activity($1)", [PERIOD]);
+    await db.exec("reset role");
+    const snapshot = async () =>
+      (
+        await db.query(`select
+      (select to_jsonb(p) from profiles p where user_id='${A}') as profile,
+      (select jsonb_agg(p) from activity_periods p) as periods,
+      (select jsonb_agg(c) from checkins c) as checkins,
+      (select jsonb_agg(l) from xp_ledger l) as ledger`)
+      ).rows[0];
+    const before = await snapshot();
+    await db.exec(await sqlFile("migrations/202610180001_beijing_time.sql"));
+    await db.query("select initialize_profile($1,$2)", [
+      A,
+      {
+        timeZone: "Asia/Shanghai",
+        timeBudget: 30,
+        goal: "user",
+        examType: "none",
+      },
+    ]);
+    expect(await snapshot()).toEqual(before);
+  });
   it("applies the real migration/seed and has core UUID/SHA256", async () => {
     const result = await db.query<{
       lessons: number;
@@ -205,6 +283,18 @@ describe("actual in-memory PostgreSQL migration and authorization", () => {
 });
 
 describe("actual PostgreSQL settlement and boundary functions", () => {
+  it("uses Beijing 03:00 independently of the database session timezone", async () => {
+    for (const zone of ["UTC", "America/Los_Angeles", "Australia/Sydney"]) {
+      await db.query("select set_config('TimeZone',$1,true)", [zone]);
+      expect(
+        (
+          await db.query(`select
+        club_date('Asia/Shanghai','2026-10-14 18:59:59Z')::text before,
+        club_date('Asia/Shanghai','2026-10-14 19:00:00Z')::text after`)
+        ).rows[0],
+      ).toEqual({ before: "2026-10-14", after: "2026-10-15" });
+    }
+  });
   it("keeps 02:59/03:00 and Sydney DST boundaries distinct", async () => {
     const result = await db.query<{
       a: string;
@@ -237,6 +327,14 @@ describe("actual PostgreSQL settlement and boundary functions", () => {
       )
     ).rows[0].result;
     expect(second.id).toBe(first.id);
+    expect(
+      (
+        await db.query(
+          "select time_zone, extract(hour from starts_at at time zone 'Asia/Shanghai')::int as start_hour, extract(hour from ends_at at time zone 'Asia/Shanghai')::int as end_hour from activity_periods where id=$1",
+          [first.id],
+        )
+      ).rows[0],
+    ).toEqual({ time_zone: "Asia/Shanghai", start_hour: 3, end_hour: 3 });
     expect((await db.query("select * from daily_lessons")).rows).toHaveLength(
       5,
     );

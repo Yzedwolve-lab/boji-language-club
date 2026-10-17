@@ -4,7 +4,7 @@
 
 ## 第一次下载
 
-不需要先学习 Git：点击 [直接下载 ZIP](https://github.com/zhouyilang666-lab/boji-language-club/archive/refs/heads/main.zip)，或在 [仓库首页](https://github.com/zhouyilang666-lab/boji-language-club) 点击 **Code → Download ZIP**，把压缩包完整解压到自己容易找到的文件夹。
+不需要先学习 Git：点击 [直接下载 ZIP](https://github.com/Yzedwolve-lab/boji-language-club/archive/refs/heads/main.zip)，或在 [仓库首页](https://github.com/Yzedwolve-lab/boji-language-club) 点击 **Code → Download ZIP**，把压缩包完整解压到自己容易找到的文件夹。
 
 Windows 安装 [Node.js LTS](https://nodejs.org/en/download)（22 或更高版本），在解压目录的资源管理器地址栏输入 `powershell` 并回车，执行：
 
@@ -18,7 +18,7 @@ pnpm.cmd install --frozen-lockfile --ignore-scripts
 熟悉 Git 的用户可以克隆：
 
 ```sh
-git clone https://github.com/zhouyilang666-lab/boji-language-club.git
+git clone https://github.com/Yzedwolve-lab/boji-language-club.git
 cd boji-language-club
 ```
 
@@ -66,7 +66,7 @@ ZIP 用户可以下载新版并解压到新目录，按首次安装流程启动�
 
 ## 分享视频时，观众怎么使用
 
-把 [仓库首页链接](https://github.com/zhouyilang666-lab/boji-language-club) 放到视频简介，指引观众依次完成“下载 ZIP → 安装依赖 → 双击启动 → 连接自己的 AI”。推荐同时链接 [从这里开始](../START_HERE.md)。
+把 [仓库首页链接](https://github.com/Yzedwolve-lab/boji-language-club) 放到视频简介，指引观众依次完成“下载 ZIP → 安装依赖 → 双击启动 → 连接自己的 AI”。推荐同时链接 [从这里开始](../START_HERE.md)。
 
 可使用这段简短说明：
 

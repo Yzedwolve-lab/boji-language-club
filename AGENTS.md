@@ -10,6 +10,7 @@ Read PROJECT_SPEC.md and QA_ACCEPTANCE.md before coding. Use SOURCES.md to disti
 - Goal title and card material are independent. A selected target is not an achieved exam result.
 - A missed unclaimed day does not increment the training Day. Archive history instead of deleting it.
 - Do not start the next training Day immediately after claiming; respect the next local training-day boundary.
+- The current Chinese-user release always uses Asia/Shanghai with a 03:00 Beijing training-day boundary. Do not detect the browser timezone or expose a timezone selector; preserve old logs and prevent duplicate XP during migration.
 - Settle each activity period at most once using server authority, a database transaction and a unique ledger source.
 - AI creates or interprets content. Deterministic code validates scales, units, budgets, XP and state transitions.
 - Do not convert unknown values to zero, invent a baseline or promise an exam/fat-loss date.

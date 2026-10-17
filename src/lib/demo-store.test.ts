@@ -9,13 +9,200 @@ import {
   applicableAIPlan,
   effectivePlanningProfile,
   requiresFitnessReview,
+  demoDate,
+  type DemoState,
 } from "./demo-store";
+import { CLUB_TIME_ZONE } from "./domain";
+import { planningInputKey } from "./plan-input";
 import {
   FITNESS_REVIEW_VERSION,
   fitnessReviewFingerprint,
 } from "./fitness-review";
 import { energyInputKey } from "./energy-plan";
 import type { AINutritionResult, AIStarterPlan } from "./ai-types";
+
+describe("fixed Beijing training days and legacy timezone migration", () => {
+  function legacy(date: string, zone = "America/New_York") {
+    const state = newDemo(defaultProfile(), new Date("2026-10-15T12:00:00Z"));
+    state.profile.timeZone = zone;
+    state.current.date = date;
+    state.current.id = `legacy-${date}`;
+    state.current.fitness.breakfast = "2 cooked eggs";
+    state.current.fitness.completed = true;
+    state.current.fitness.quality = 100;
+    for (const key of [
+      "vocabulary",
+      "listening",
+      "reading",
+      "writing",
+      "speaking",
+    ] as const)
+      state.current.learning[key] = 80;
+    return state;
+  }
+  function settled(state: DemoState, claimedAt: string) {
+    state.current.status = "claimed";
+    state.current.claimedAt = claimedAt;
+    state.current.awardedXP = 90;
+    state.xp = 90;
+    state.completedDays = 1;
+    state.ledger = [
+      {
+        source: state.current.id,
+        date: state.current.date,
+        dayIndex: 1,
+        xp: 90,
+      },
+    ];
+    return state;
+  }
+  it("uses China time for defaults and new accounts even when a caller supplies an old timezone", () => {
+    expect(defaultProfile().timeZone).toBe(CLUB_TIME_ZONE);
+    const state = newDemo(
+      { ...defaultProfile(), timeZone: "Australia/Brisbane" },
+      new Date("2026-10-14T18:00:00Z"),
+    );
+    expect(state.profile.timeZone).toBe("Asia/Shanghai");
+    expect(state.current.date).toBe("2026-10-14");
+    expect(
+      demoDate(legacy("2026-10-15"), new Date("2026-10-14T18:59:59Z")),
+    ).toBe("2026-10-14");
+    expect(
+      demoDate(legacy("2026-10-15"), new Date("2026-10-14T19:00:00Z")),
+    ).toBe("2026-10-15");
+  });
+  it("migrates once while preserving original dates, drafts, history, ledger and XP", () => {
+    const state = settled(legacy("2026-10-15"), "2026-10-15T12:00:00Z");
+    state.history = [{ ...state.current, id: "earlier", date: "2026-10-14" }];
+    const migrated = normalizeDemoState(state);
+    expect(migrated.profile.timeZone).toBe(CLUB_TIME_ZONE);
+    expect(migrated.current).toBe(state.current);
+    expect(migrated.history).toBe(state.history);
+    expect(migrated.ledger).toBe(state.ledger);
+    expect(migrated.xp).toBe(90);
+    expect(migrated.completedDays).toBe(1);
+    expect(state.profile.timeZone).toBe("America/New_York");
+    expect(normalizeDemoState(migrated)).toBe(migrated);
+  });
+  it("does not roll an ahead-of-Beijing period backwards or increment its training Day", () => {
+    const state = legacy("2026-10-16", "Australia/Brisbane");
+    const migrated = rollDemo(state, "2026-10-15");
+    expect(migrated.profile.timeZone).toBe(CLUB_TIME_ZONE);
+    expect(migrated.current).toBe(state.current);
+    expect(migrated.current.dayIndex).toBe(1);
+    expect(migrated.history).toEqual([]);
+    expect(rollDemo(migrated, "2026-10-16")).toBe(migrated);
+  });
+  it("archives an older unclaimed period without deleting drafts or fabricating completed days", () => {
+    const state = legacy("2026-10-14");
+    const migrated = rollDemo(state, "2026-10-15");
+    expect(migrated.profile.timeZone).toBe(CLUB_TIME_ZONE);
+    expect(migrated.current.date).toBe("2026-10-15");
+    expect(migrated.current.dayIndex).toBe(1);
+    expect(migrated.history[0]).toMatchObject({
+      date: "2026-10-14",
+      status: "archived_unclaimed",
+      fitness: { breakfast: "2 cooked eggs" },
+    });
+    expect(migrated.xp).toBe(0);
+  });
+  it("waits until the next Beijing training day after a legacy claim whose original date was behind", () => {
+    const state = settled(legacy("2026-10-14"), "2026-10-14T20:00:00Z");
+    const migrated = rollDemo(state, "2026-10-15");
+    expect(migrated.profile.timeZone).toBe(CLUB_TIME_ZONE);
+    expect(migrated.current).toBe(state.current);
+    expect(migrated.ledger).toBe(state.ledger);
+    expect(claimDemo(migrated)).toBe(migrated);
+    const next = rollDemo(migrated, "2026-10-16");
+    expect(next.current.dayIndex).toBe(2);
+    expect(next.history[0]).toEqual(state.current);
+    expect(next.xp).toBe(90);
+  });
+  it("prevents another active period from claiming on the Beijing day of a historical legacy claim", () => {
+    const claimed = settled(legacy("2026-10-14"), "2026-10-14T20:00:00Z");
+    const state = legacy("2026-10-15");
+    state.history = [claimed.current];
+    state.ledger = claimed.ledger;
+    state.xp = 90;
+    state.completedDays = 1;
+    expect(() => claimDemo(normalizeDemoState(state))).toThrow(/北京时间/);
+    expect(state.xp).toBe(90);
+    expect(state.current.fitness.breakfast).toBe("2 cooked eggs");
+  });
+  it("records the actual period date for new simulated claims instead of deriving it from wall-clock timestamps", () => {
+    const state = normalizeDemoState(legacy("2099-10-15"));
+    state.dayOffset = 1;
+    const claimed = claimDemo(state, new Date("2099-10-14T12:00:00Z"));
+    expect(claimed.current.claimedClubDate).toBe("2099-10-15");
+    expect(rollDemo(claimed, "2099-10-15")).toBe(claimed);
+    expect(rollDemo(claimed, "2099-10-16").current.dayIndex).toBe(2);
+  });
+  it("does not settle an old ahead-of-Beijing active period before the China boundary", () => {
+    const previous = settled(
+      legacy("2026-10-15", "Australia/Brisbane"),
+      "2026-10-15T10:00:00Z",
+    );
+    const state = normalizeDemoState(
+      legacy("2026-10-16", "Australia/Brisbane"),
+    );
+    state.history = [previous.current];
+    state.ledger = previous.ledger;
+    state.xp = 90;
+    state.completedDays = 1;
+    expect(() => claimDemo(state, new Date("2026-10-15T18:59:59Z"))).toThrow(
+      /北京时间/,
+    );
+    expect(state.xp).toBe(90);
+    expect(claimDemo(state, new Date("2026-10-15T19:00:00Z")).xp).toBe(180);
+  });
+  it("only migrates a plan freshness key that matched all original inputs", () => {
+    const state = legacy("2026-10-15");
+    state.aiSetup = {
+      mode: "demo",
+      preferences: {
+        activityLevel: "unspecified",
+        dietaryPreferences: "",
+        allergies: "",
+      },
+      englishSample: "I enjoy learning English.",
+    };
+    const input = {
+      profile: effectivePlanningProfile(state),
+      preferences: state.aiSetup.preferences,
+      englishSample: state.aiSetup.englishSample,
+    };
+    const plan = {
+      inputKey: planningInputKey(input),
+      forDate: "2026-10-15",
+      nutrition: {
+        status: "tracking_only",
+        summary: "Keep recording",
+        mealIdeas: [],
+      },
+    } as unknown as AIStarterPlan;
+    state.aiSetup.plan = plan;
+    state.aiPlanHistory = [plan];
+    const migrated = normalizeDemoState(state);
+    expect(migrated.aiSetup!.plan!.inputKey).toBe(
+      planningInputKey({
+        ...input,
+        profile: effectivePlanningProfile(migrated),
+      }),
+    );
+    expect(migrated.aiSetup!.plan!.inputKey).not.toBe(plan.inputKey);
+    expect(migrated.aiSetup!.plan!.forDate).toBe(plan.forDate);
+    expect(migrated.aiSetup!.plan!.nutrition).toBe(plan.nutrition);
+    expect(migrated.aiPlanHistory).toBe(state.aiPlanHistory);
+    expect(state.aiSetup.plan).toBe(plan);
+    expect(normalizeDemoState(migrated)).toBe(migrated);
+    const stale = structuredClone(state);
+    stale.aiSetup!.plan!.inputKey = "already-stale";
+    expect(normalizeDemoState(stale).aiSetup!.plan!.inputKey).toBe(
+      "already-stale",
+    );
+  });
+});
+
 describe("explicit local demo lifecycle", () => {
   it("starts selected target with silver XP and no invented metrics", () => {
     const s = newDemo(

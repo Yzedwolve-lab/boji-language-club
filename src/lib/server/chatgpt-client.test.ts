@@ -844,7 +844,7 @@ describe("existing adapters with ChatGPT client injection", () => {
       bodyFatPercent: null,
       activityLevel: "light",
       timeBudget: 30,
-      timeZone: "Australia/Brisbane",
+      timeZone: "Asia/Shanghai",
       examType: "none",
       examScore: null,
       examDate: "",

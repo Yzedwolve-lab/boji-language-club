@@ -1,6 +1,6 @@
 import "server-only";
 import { z } from "zod";
-import { validateProfile } from "../domain";
+import { CLUB_TIME_ZONE, validateProfile } from "../domain";
 
 export const profileSchema = z
   .object({
@@ -17,7 +17,9 @@ export const profileSchema = z
       z.literal(120),
       z.literal(240),
     ]),
-    timeZone: z.string().max(100),
+    // The product uses Beijing time. Accept older clients without letting their
+    // optional timezone field change a training-day boundary.
+    timeZone: z.unknown().transform(() => CLUB_TIME_ZONE),
     examType: z.enum([
       "none",
       "ielts",

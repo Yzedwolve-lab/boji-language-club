@@ -1,5 +1,13 @@
 # 发布门槛 · 2026-10-15
 
+## v0.1.1 · 固定北京时间（2026-10-18）
+
+当前中国用户版本统一使用 `Asia/Shanghai`，每天北京时间 03:00 切换训练日。入会与设置不再提供时区选项，浏览器和服务器所在地区不改变这一规则。旧本机档案迁移时保留草稿、历史与经验，防止同一北京时间训练日再次领取；新入会和 AI 计划的日期也由程序统一决定。原多用户数据库未对外开放，增量迁移不批量改写旧账户的历史时区与账本；详见 BACKEND。
+
+仓库首页、下载及验证链接已同步至当前 GitHub 账号；旧提交历史不在本次改写范围内。
+
+本次本机验证通过：单元与集成 **589/589（21 文件）**、ESLint、TypeScript、优化构建，以及最终构建上的 Chromium **14/14**。浏览器覆盖美国时区下的新入会、旧草稿和档案迁移、北京时间 03:00 跨日，以及原有每日练习与领取流程；历史结算和迁移防重复领取另有确定性测试。使用虚构资料与模拟 AI，未调用真实 AI。日志前缀为 `artifacts/logs/china-timezone-`，GitHub 全量检查以新版本对应的 Actions 结果为准。
+
 **V6.1 供个人本机运行，已按 MIT 许可公开源码。真实多用户公众服务：BLOCKED。** 源码公开不启用托管网站，不共享维护者的 AI 账号或密钥。V5.2 的真实短连接仅是连通性证据，真实营养/英语计划质量尚未实测。
 
 ## 2026-10-17 公开源码发布
@@ -8,8 +16,8 @@
 - `.boji-private/`、真实 `.env`、依赖、构建文件、个人导出、截图和本机验收日志不属于公开源码；`artifacts/` 整体排除。下文历史日志路径指开发期间本机证据，公开仓库可按测试命令自行重现。
 - README 提供首次安装和日常启动步骤；每位使用者连接自己的 ChatGPT 账号或 API Key。当前源码没有可供公众共用的账号、额度或后台服务。
 - 新增 GitHub Actions 检查，测试使用模拟 AI 与虚构资料，无需配置真实 API Key。实际执行状态以 Actions 页面为准。
-- 公开仓库：[zhouyilang666-lab/boji-language-club](https://github.com/zhouyilang666-lab/boji-language-club)。已验证匿名访问、MIT 识别和源码 ZIP 内容；从干净 checkout 安装依赖、优化构建与类型检查通过。
-- [首次 GitHub Actions 验证](https://github.com/zhouyilang666-lab/boji-language-club/actions/runs/39007440544) 全部通过：Linux 干净安装、ESLint、单元/集成、7 项启动器测试、构建、类型检查、源码/浏览器模式扫描及 **45/45 浏览器流程**。应用源码版本为 `4f2f1f1`，后续发布说明与忽略规则更新不改变应用代码。未调用真实 AI。
+- 公开仓库：[Yzedwolve-lab/boji-language-club](https://github.com/Yzedwolve-lab/boji-language-club)。已验证匿名访问、MIT 识别和源码 ZIP 内容；从干净 checkout 安装依赖、优化构建与类型检查通过。
+- [首次 GitHub Actions 验证](https://github.com/Yzedwolve-lab/boji-language-club/actions/runs/39007440544) 全部通过：Linux 干净安装、ESLint、单元/集成、7 项启动器测试、构建、类型检查、源码/浏览器模式扫描及 **45/45 浏览器流程**。应用源码版本为 `4f2f1f1`，后续发布说明与忽略规则更新不改变应用代码。未调用真实 AI。
 
 下文记录旧版本验收时点；“未发布”等历史状态不代表当前源码仓库的可见性。
 

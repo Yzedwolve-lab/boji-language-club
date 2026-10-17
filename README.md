@@ -4,7 +4,7 @@
 
 你可以用自己的 **ChatGPT 账号或 API Key** 生成饮食参考计划与英语任务，也可以先用虚构资料体验。每个人在自己的电脑运行、连接自己的 AI；本仓库不提供共享账号或免费模型额度。
 
-[GitHub 仓库](https://github.com/zhouyilang666-lab/boji-language-club) · [直接下载 ZIP](https://github.com/zhouyilang666-lab/boji-language-club/archive/refs/heads/main.zip) · [从这里开始](START_HERE.md)
+[GitHub 仓库](https://github.com/Yzedwolve-lab/boji-language-club) · [直接下载 ZIP](https://github.com/Yzedwolve-lab/boji-language-club/archive/refs/heads/main.zip) · [从这里开始](START_HERE.md)
 
 ## 能做什么
 
@@ -17,7 +17,7 @@
 
 ### Windows：第一次安装
 
-1. 点击 [下载 ZIP](https://github.com/zhouyilang666-lab/boji-language-club/archive/refs/heads/main.zip)，或在仓库页面选择 **Code → Download ZIP**，下载后**完整解压**。不要在 ZIP 内直接启动。
+1. 点击 [下载 ZIP](https://github.com/Yzedwolve-lab/boji-language-club/archive/refs/heads/main.zip)，或在仓库页面选择 **Code → Download ZIP**，下载后**完整解压**。不要在 ZIP 内直接启动。
 2. 安装 [Node.js LTS](https://nodejs.org/en/download)（版本 **22 或更高**）。安装完成后重新打开终端。
 3. 进入解压后的文件夹，在资源管理器地址栏输入 `powershell` 并回车，依次运行：
 
@@ -69,6 +69,8 @@ API Key 的一次性配置码由启动器自动准备，不用自己编。如果
 3. 在 **薄肌** 用英文记录真实食物、饮料和零食；重要信息不清楚时回答英文追问。今天只吃一餐就填一餐，其余留空。
 4. 记录完整后，勾选 **今天吃的都记完了（一餐也可以）**，明确点击 AI 解读，核对结果并填写英文复盘。数值计划要求全天估算区间落入参考范围；不满足时仍保存记录，并说明原因。
 5. 在 **语言** 完成当天任务，双模块完成后领取经验。
+
+训练日期统一按**北京时间每天凌晨 3 点**刷新，无需选择时区；电脑在境外也沿用同一规则。旧版本的档案会自动适配，保留历史记录与已获得的经验。
 
 不想提供身体资料时，可以选择仅记录模式。数值计划当天启用后，断开 AI 或切换模式不会跳过审核；资料和饮食修改后需要重新核对。更多规则见 [每日计划说明](docs/V6_DAILY_PLANS.md)。
 

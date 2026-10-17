@@ -28,7 +28,7 @@ const validProfile = {
   bodyFatPercent: null,
   activityLevel: "unknown",
   timeBudget: 30,
-  timeZone: "Australia/Brisbane",
+  timeZone: "Asia/Shanghai",
   examType: "none",
   examScore: null,
   examDate: "",
@@ -381,6 +381,21 @@ describe("authenticated API boundary (mocked transport, not database RLS)", () =
 });
 
 describe("server-side input and provider validation", () => {
+  it.each([
+    undefined,
+    null,
+    "Australia/Brisbane",
+    "America/New_York",
+    "not-a-zone",
+    8,
+  ])(
+    "normalizes a legacy or ignored client timezone (%s) to Beijing time",
+    (timeZone) => {
+      expect(parseProfile({ ...validProfile, timeZone })).toMatchObject({
+        profile: { timeZone: "Asia/Shanghai" },
+      });
+    },
+  );
   it("repeats onboarding validation and rejects injected privileged fields", () => {
     expect(parseProfile(validProfile)).toHaveProperty("profile");
     expect(parseProfile({ ...validProfile, xp: 999999 })).toHaveProperty(

@@ -150,7 +150,8 @@
     "unknownBaselineEtaStatus": "calibrating"
   },
   "day": {
-    "fallbackTimeZone": "Australia/Brisbane",
+    "timeZone": "Asia/Shanghai",
+    "timeZoneSelectable": false,
     "boundaryLocalTime": "03:00",
     "missedClaimIncrementsDay": false,
     "preserveHistory": true,

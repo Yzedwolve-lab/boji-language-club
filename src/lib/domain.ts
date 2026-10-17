@@ -4,6 +4,8 @@
  * additionally use authentication, row locks and unique ledger constraints.
  */
 export const RULES_VERSION = "boji-2026-10-15-v1";
+/** All current product training days use Beijing time, independent of the device. */
+export const CLUB_TIME_ZONE = "Asia/Shanghai";
 
 export type GoalId = "user" | "member" | "shareholder" | "alan";
 export type ExamType =
@@ -204,13 +206,8 @@ export function validateProfile(profile: Profile): Record<string, string> {
     errors.activityLevel = "请选择活动量，或留空。";
   if (![30, 60, 120, 240].includes(profile.timeBudget))
     errors.timeBudget = "请选择每日 30、60、120 或 240 分钟。";
-  try {
-    if (typeof profile.timeZone !== "string" || !profile.timeZone)
-      throw new Error("missing");
-    new Intl.DateTimeFormat("en", { timeZone: profile.timeZone }).format(0);
-  } catch {
-    errors.timeZone = "请输入有效的 IANA 时区，例如 Australia/Brisbane。";
-  }
+  if (profile.timeZone !== CLUB_TIME_ZONE)
+    errors.timeZone = "俱乐部统一使用北京时间，请刷新页面后重试。";
   const examError = validateExam(
     profile.examType,
     profile.examScore,

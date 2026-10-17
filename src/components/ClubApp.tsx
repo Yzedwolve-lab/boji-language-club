@@ -713,7 +713,7 @@ export default function ClubApp() {
                     </h3>
                     <p>
                       {claimed
-                        ? `已领取 ${current.awardedXP} XP · 下一训练日在本地 03:00 开启`
+                        ? `已领取 ${current.awardedXP} XP · 下一训练日在北京时间 03:00 开启`
                         : done
                           ? "经验依据记录质量与练习完成计算；重做不重复发放。"
                           : `薄肌${fitnessDone ? "已完成" : "待完成"} · 语言 ${lang.completed}/5 · 领取奖励 +10 XP`}
@@ -969,16 +969,15 @@ export default function ClubApp() {
                   </h3>
                   <div className="setting-row">
                     <div>
-                      <strong>{state.profile.timeZone}</strong>
+                      <strong>每天北京时间 03:00 刷新</strong>
                       <small>
-                        本地 03:00 开始新的训练日期。当前 Day {current.dayIndex}{" "}
-                        · {current.date}
+                        当前 Day {current.dayIndex} · {current.date}
                       </small>
                     </div>
-                    <span className="soft-badge">时区锁定</span>
                   </div>
                   <p className="tiny muted">
-                    本轮训练开始后不接受改时区来重复领取。生产环境使用服务端时间。
+                    凌晨 3
+                    点前的记录归入前一个训练日，已领取的经验不会重复发放。
                   </p>
                   <div className="demo-controls">
                     <span className="soft-badge">DEMO 控制</span>
