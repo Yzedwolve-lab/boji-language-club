@@ -1,0 +1,71 @@
+{
+  "kind": "specification_handoff_not_application",
+  "generatedOn": "2026-10-15",
+  "checksPerformed": [
+    "all_time_templates_sum_to_declared_budget",
+    "xp_and_component_weights_consistent",
+    "card_tier_boundaries_contiguous",
+    "four_local_skills_have_name_and_description",
+    "source_reference_ids_resolve",
+    "UTF-8 files readable"
+  ],
+  "notPerformed": [
+    "application_implementation",
+    "runtime_or_browser_tests",
+    "clinical_policy_review",
+    "GitHub_repository_creation",
+    "deployment"
+  ],
+  "files": [
+    {
+      "path": ".agents/skills/boji-learning-engine/SKILL.md",
+      "bytes": 1898,
+      "sha256": "b0ebd20f511488bd456cc177da98c95cf272a58ca6812490ce2c3b0fd68288e4"
+    },
+    {
+      "path": ".agents/skills/boji-product-rules/SKILL.md",
+      "bytes": 1456,
+      "sha256": "3706519ffbf931c998f6a71f7a2b0ccaa59aa995016cf627e738502bb0ddc110"
+    },
+    {
+      "path": ".agents/skills/boji-release-audit/SKILL.md",
+      "bytes": 1871,
+      "sha256": "7bf755fd6318cbe397ae41d56c64ce33d945f70a38f33be8eda01e8e29570251"
+    },
+    {
+      "path": ".agents/skills/boji-ui-design/SKILL.md",
+      "bytes": 1537,
+      "sha256": "1c953adb7dcc738d4bec696ce9aa66ebc106a9f7b66b62721bf686a79561af58"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 3599,
+      "sha256": "c046990317b830ac8adfb31d452b868c3b1836f780cc02ca3132d9dfbee31da7"
+    },
+    {
+      "path": "PROJECT_SPEC.md",
+      "bytes": 35809,
+      "sha256": "28f2a3a31d7033b0389e805a43352c6e1c336e0466f131dcba1c560b0fa8cab9"
+    },
+    {
+      "path": "QA_ACCEPTANCE.md",
+      "bytes": 8158,
+      "sha256": "eca200e58d357800c2f3275eed36fe06eec3a18d3f8f54d04f1d66e070a6439f"
+    },
+    {
+      "path": "SOURCES.md",
+      "bytes": 6698,
+      "sha256": "1e3d063bbe6883992c1a2af1f6133aca64d3910b06a3bc394fabeae22d1a7636"
+    },
+    {
+      "path": "START_HERE.md",
+      "bytes": 2707,
+      "sha256": "cd1965916c5978766fcef2233e4fa82b2daed3adeeea8981b1800c7a5d751c04"
+    },
+    {
+      "path": "product-config.example.json",
+      "bytes": 6211,
+      "sha256": "8b0b8cd79f4e10a348ece7006cd3f6ca93f58213e36cc109728a0706f877ba12"
+    }
+  ]
+}

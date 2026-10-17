@@ -1,0 +1,24 @@
+node_modules/
+.next/
+.env*
+!.env.example
+*.tsbuildinfo
+test-results/
+playwright-report/
+.DS_Store
+# Keep local acceptance evidence, screenshots and exports out of public source.
+artifacts/
+*.zip
+*.pem
+*.key
+*.p12
+*.pfx
+.pnpm-store/
+coverage/
+# Playwright traces may include browser state and request details.
+artifacts/**/trace.zip
+artifacts/**/trace/
+# Self-hosted sessions and usage metadata stay on the operator's server.
+.boji-private/
+# Runtime logs can contain local paths or request details.
+/*.log

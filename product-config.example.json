@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "rulesVersion": "proposal-2026-10-15",
+  "notice": "Proposed product defaults; not a clinically approved nutrition policy or a working app.",
+  "productName": "薄肌语言俱乐部",
+  "defaultRuntimeMode": "demo",
+  "onboarding": {
+    "dailyTimeChoicesMinutes": [
+      30,
+      60,
+      120,
+      240
+    ],
+    "allowUnknownExam": true,
+    "allowUnknownBodyMetrics": true,
+    "adultPersonalizationMinimumAge": 18
+  },
+  "goals": [
+    {
+      "id": "user",
+      "label": "薄肌用户",
+      "ieltsTarget": 6.5,
+      "themeReferenceBodyFatPercent": {
+        "male": 18,
+        "female": 28
+      }
+    },
+    {
+      "id": "member",
+      "label": "薄肌会员",
+      "ieltsTarget": 7,
+      "themeReferenceBodyFatPercent": {
+        "male": 15,
+        "female": 25
+      }
+    },
+    {
+      "id": "shareholder",
+      "label": "薄肌股东",
+      "ieltsTarget": 7.5,
+      "themeReferenceBodyFatPercent": {
+        "male": 12,
+        "female": 22
+      }
+    },
+    {
+      "id": "alan",
+      "label": "薄肌教父",
+      "ieltsTarget": 8,
+      "themeReferenceBodyFatPercent": {
+        "male": 10,
+        "female": 20
+      }
+    }
+  ],
+  "bodyFatReferences": {
+    "optional": true,
+    "automaticPrescription": false,
+    "requiredForCardUpgrade": false,
+    "interpretation": "Theme reference only; not a health ranking or universal target."
+  },
+  "examScales": {
+    "ielts": {
+      "min": 0,
+      "max": 9,
+      "step": 0.5
+    },
+    "pte_academic": {
+      "min": 10,
+      "max": 90,
+      "step": 1
+    },
+    "toefl_legacy_total": {
+      "min": 0,
+      "max": 120,
+      "step": 1
+    },
+    "toefl_2026_band": {
+      "min": 1,
+      "max": 6,
+      "step": 0.5,
+      "introducedOn": "2026-01-21"
+    },
+    "toefl_reported_comparable_total": {
+      "min": 0,
+      "max": 120,
+      "step": 1
+    },
+    "cet": {
+      "statuses": [
+        "at_least_425",
+        "below_425",
+        "not_taken",
+        "not_provided"
+      ],
+      "officialPassClaim": false
+    }
+  },
+  "cardTiers": [
+    {
+      "id": "silver",
+      "label": "银色",
+      "minXpInclusive": 0,
+      "maxXpExclusive": 700
+    },
+    {
+      "id": "gold",
+      "label": "金色",
+      "minXpInclusive": 700,
+      "maxXpExclusive": 3000
+    },
+    {
+      "id": "diamond",
+      "label": "钻石",
+      "minXpInclusive": 3000,
+      "maxXpExclusive": 9000
+    },
+    {
+      "id": "black_gold",
+      "label": "黑金",
+      "minXpInclusive": 9000,
+      "maxXpExclusive": null
+    }
+  ],
+  "xp": {
+    "dailyCap": 100,
+    "fitnessWeight": 40,
+    "languageWeight": 50,
+    "claimBonus": 10,
+    "awardOnlyAfterBothModulesComplete": true,
+    "deductForMissedDay": false,
+    "fitnessQualityWeights": {
+      "validRecord": 30,
+      "confirmedAssumptions": 10,
+      "reviewedFeedback": 30,
+      "englishReflection": 30
+    }
+  },
+  "plan": {
+    "maximumCompressionRatio": 0.4,
+    "compressionChoices": [
+      0,
+      0.1,
+      0.2,
+      0.3,
+      0.4
+    ],
+    "compoundCompression": false,
+    "respectTimeCap": true,
+    "unknownBaselineEtaStatus": "calibrating"
+  },
+  "day": {
+    "fallbackTimeZone": "Australia/Brisbane",
+    "boundaryLocalTime": "03:00",
+    "missedClaimIncrementsDay": false,
+    "preserveHistory": true,
+    "nextDayRequiresBoundary": true,
+    "providerDelayClaimWindowHours": 24
+  },
+  "learning": {
+    "componentWeights": {
+      "vocabulary": 20,
+      "listening": 20,
+      "reading": 20,
+      "writing": 20,
+      "speaking": 20
+    },
+    "minimumComponentScore": 60,
+    "minimumOverallScore": 70,
+    "subjectiveRubricMax": 5,
+    "initialReviewIntervalsDays": [
+      1,
+      3,
+      7,
+      14,
+      30
+    ],
+    "timeTemplates": [
+      {
+        "totalMinutes": 30,
+        "vocabulary": 4,
+        "listening": 4,
+        "reading": 3,
+        "writing": 5,
+        "speaking": 5,
+        "loggingReflection": 4,
+        "retryBreakReserve": 5
+      },
+      {
+        "totalMinutes": 60,
+        "vocabulary": 8,
+        "listening": 10,
+        "reading": 7,
+        "writing": 12,
+        "speaking": 10,
+        "loggingReflection": 5,
+        "retryBreakReserve": 8
+      },
+      {
+        "totalMinutes": 120,
+        "vocabulary": 12,
+        "listening": 22,
+        "reading": 16,
+        "writing": 24,
+        "speaking": 24,
+        "loggingReflection": 8,
+        "retryBreakReserve": 14
+      },
+      {
+        "totalMinutes": 240,
+        "vocabulary": 20,
+        "listening": 40,
+        "reading": 35,
+        "writing": 45,
+        "speaking": 40,
+        "loggingReflection": 15,
+        "retryBreakReserve": 45
+      }
+    ],
+    "releaseFullFeedbackOnlyAfterPass": true,
+    "formativeHintsBeforePass": true,
+    "audioRequiredForPronunciationAndFluency": true,
+    "accessibleAlternativeMustBeLabeled": true
+  },
+  "fitness": {
+    "productionDefaultMode": "tracking_only",
+    "nutritionPolicyId": null,
+    "alwaysSaveAuthenticLogs": true,
+    "requireAtLeastOneValidMealOrActivity": true,
+    "targetComparisonRequiresAdequateCoverageAndPolicy": true,
+    "displayToleranceIsNotClinicalStandard": true,
+    "excellentEnergyRatio": [
+      0.9,
+      1.1
+    ],
+    "acceptableEnergyRatio": [
+      0.8,
+      1.2
+    ],
+    "acceptableMacroBoundExpansion": {
+      "lowerMultiplier": 0.8,
+      "upperMultiplier": 1.2
+    },
+    "lowIntakeGetsNoBonus": true,
+    "exerciseEarnBackFoodPrompt": false,
+    "autoSubtractAllExerciseCalories": false
+  },
+  "privacy": {
+    "shareBodyMetricsByDefault": false,
+    "shareActualExamScoresByDefault": false,
+    "defaultAudioRetentionDays": 30,
+    "recordingsPublic": false
+  },
+  "messages": {
+    "englishRequiredDefault": "Please describe your meal or exercise in English.",
+    "englishRequiredPlayful": "If you don't speak English, I won't talk to you.",
+    "emptyFitness": "Log at least one meal or activity before submitting.",
+    "nutritionAttention": "Your intake is outside the suggested range. Keep your log and review the feedback.",
+    "languageRetryDefault": "Not passed yet. Review the highlighted sections and try again.",
+    "languageRetryPlayful": "If you make too many mistakes, I won't talk to you."
+  }
+}

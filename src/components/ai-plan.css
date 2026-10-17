@@ -1,0 +1,269 @@
+.ai-plan-panel {
+  margin: 24px 0;
+}
+.ai-plan-results,
+.ai-plan-editor {
+  margin-bottom: 24px;
+  overflow-wrap: anywhere;
+}
+.ai-plan-results h2,
+.ai-plan-editor h2 {
+  font-size: 25px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.ai-plan-results p,
+.ai-plan-editor p {
+  font-size: 15px;
+  line-height: 1.9;
+  margin: 10px 0;
+}
+.ai-plan-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.ai-plan-section h3 {
+  font-size: 19px;
+  margin-bottom: 12px;
+}
+.ai-meal-ideas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.ai-meal-ideas article {
+  padding: 18px;
+  border-radius: 14px;
+  background: #20372f;
+  border: 1px solid #4e7564;
+}
+.ai-meal-ideas strong {
+  font-size: 17px;
+  color: #d2f1de;
+}
+.ai-meal-ideas small {
+  font-size: 13px;
+  color: #c2d7c9;
+  line-height: 1.8;
+}
+.ai-task-list {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+.ai-task-list article {
+  padding: 15px 18px;
+  border-radius: 12px;
+  background: #2c203b;
+  border: 1px solid #604576;
+}
+.ai-task-list article > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 16px;
+}
+.ai-task-list span {
+  font-size: 14px;
+  color: #d4b9ef;
+}
+.ai-plan-limits,
+.ai-status-note {
+  padding: 15px 18px;
+  background: #201927;
+  border-radius: 12px;
+  color: #cec1dc;
+}
+.ai-plan-editor .form-grid {
+  margin: 20px 0;
+}
+.ai-plan-editor input,
+.ai-plan-editor textarea,
+.ai-plan-editor select {
+  font-size: 16px;
+}
+.ai-plan-editor .check-label {
+  font-size: 14px;
+  margin: 18px 0;
+}
+.ai-plan-editor .button {
+  min-height: 46px;
+}
+.ai-nutrition {
+  margin: 22px 0;
+}
+.ai-nutrition .nutrient-stat strong.ai-range {
+  font-size: 24px;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+.ai-nutrition article {
+  margin: 12px 0;
+  padding: 16px;
+  border: 1px solid #584167;
+  border-radius: 12px;
+}
+.ai-nutrition article p {
+  font-size: 15px;
+  margin-top: 7px;
+  line-height: 1.8;
+}
+.ai-nutrition small {
+  font-size: 13px;
+}
+.ai-nutrition .nutrient-stat > small {
+  font-size: 13px;
+}
+.ai-nutrition .muted {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.ai-disconnect {
+  margin-top: 15px;
+}
+.ai-energy-plan {
+  margin: 20px 0;
+  padding: 18px;
+  border: 1px solid #76608e;
+  border-radius: 16px;
+  background: #251b32;
+}
+.ai-energy-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.ai-energy-metrics article {
+  padding: 12px;
+  border-radius: 10px;
+  background: #191321;
+}
+.ai-energy-metrics small,
+.ai-energy-metrics strong {
+  display: block;
+}
+.ai-energy-metrics small {
+  font-size: 14px;
+  color: #d1c4df;
+  margin-bottom: 8px;
+}
+.ai-energy-metrics strong {
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.ai-energy-target {
+  border: 1px solid #b494e5;
+}
+.ai-energy-plan details {
+  margin-top: 14px;
+}
+.ai-energy-plan p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.fitness-daily-review,
+.fitness-plan-prompt {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid #8e775a;
+  border-radius: 16px;
+  background: #2c241d;
+}
+.fitness-daily-review > strong,
+.fitness-plan-prompt > strong {
+  font-size: 18px;
+}
+.fitness-daily-review p,
+.fitness-plan-prompt p {
+  line-height: 1.8;
+  font-size: 15px;
+  margin: 12px 0;
+}
+.fitness-daily-review.review-within_range {
+  border-color: #619574;
+  background: #1c3028;
+}
+.fitness-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+.fitness-comparison span {
+  color: #d5c9df;
+  font-size: 14px;
+}
+.fitness-comparison strong {
+  display: block;
+  color: #fff3ff;
+  font-size: 20px;
+  line-height: 1.6;
+}
+.fitness-plan-prompt .button,
+.fitness-clarify-button {
+  white-space: normal;
+  line-height: 1.6;
+}
+.food-followup-questions {
+  display: grid;
+  gap: 18px;
+}
+.food-followup-questions .field {
+  gap: 9px;
+  display: grid;
+}
+.food-followup-questions .field strong {
+  font-size: 17px;
+  line-height: 1.65;
+}
+.food-followup-questions textarea {
+  min-height: 100px;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: var(--text);
+  background: #171121;
+  border: 1px solid #9679b6;
+  resize: vertical;
+}
+.food-followup-questions .tiny {
+  font-size: 14px;
+  line-height: 1.75;
+}
+.ai-daily-instruction {
+  margin: 12px 0 20px;
+}
+.ai-daily-instruction p {
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+.ai-daily-instruction small {
+  line-height: 1.7;
+}
+@media (max-width: 760px) {
+  .ai-meal-ideas {
+    grid-template-columns: 1fr;
+  }
+  .ai-plan-editor .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .ai-plan-results h2,
+  .ai-plan-editor h2 {
+    font-size: 23px;
+  }
+  .ai-plan-editor .button {
+    width: 100%;
+  }
+  .ai-nutrition .nutrient-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .fitness-comparison,
+  .ai-energy-metrics {
+    grid-template-columns: 1fr;
+  }
+}
