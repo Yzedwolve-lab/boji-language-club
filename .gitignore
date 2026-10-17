@@ -15,6 +15,11 @@ artifacts/
 *.pfx
 .pnpm-store/
 coverage/
+# Personal downloads may be saved into the project by accident.
+boji-demo-export*.json
+*.wav
+*.webm
+*.mp3
 # Playwright traces may include browser state and request details.
 artifacts/**/trace.zip
 artifacts/**/trace/

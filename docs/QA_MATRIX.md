@@ -4,6 +4,8 @@ Date: 2026-10-15. This report distinguishes local deterministic/browser evidence
 
 Public-source note (2026-10-17): historical logs and screenshots under `artifacts/` remain local and are excluded from Git. Reproduce checks with the README commands; new CI results appear in GitHub Actions. The public-release check passed 567 unit/integration tests and 7 launcher tests, with ESLint passing. These checks used synthetic data and mocked AI.
 
+The [first public GitHub Actions run](https://github.com/zhouyilang666-lab/boji-language-club/actions/runs/39007440544) passed on Linux with a clean install, lint, unit/integration and launcher tests, production build, typecheck, browser/source pattern scan, and **45/45 browser tests (2.3 minutes)**. The tested application revision is `4f2f1f1`; the following release documentation and ignore-list update does not change application code.
+
 ## V6.1 completion feedback and single-meal coverage (2026-10-17)
 
 The coverage checkbox is next to the daily review and explicitly accepts a single meal as the complete day's record. It does not require filling all three meal fields or silently trigger a model call. Clicking completion while blocked now presents a focused, local explanation and next action; the actual range/analysis/XP gates remain enforced. AI-mode reflection drafts stay visible before analysis and after failed requests. While a request is pending, editing is temporarily disabled so the existing whole-state response guard cannot discard a result merely because a reflection changed.
